@@ -46,7 +46,7 @@ def write_datafile(filename, tokens_np):
 
 if __name__ == "__main__":
     # download the dataset
-    fw = load_dataset("HuggingFaceFW/fineweb-edu", name=remote_name, split="train")
+    fw = load_dataset("HuggingFaceFW/fineweb-edu", name=remote_name, split="train", streaming=True)
 
     # tokenize all documents and write ourput shards, each if shard_size tokens (last shard has remainder)
     nprocs = max(1, os.cpu_count() // 2)
