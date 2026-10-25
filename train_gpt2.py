@@ -26,6 +26,7 @@ class CausalSelfAttention(nn.Module):
         # regularization
         self.n_head = config.n_head
         self.n_embd = config.n_embd
+        self.flash = config.flash
 
         # mask
         self.register_buffer(
@@ -45,11 +46,15 @@ class CausalSelfAttention(nn.Module):
         v = v.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # B, nh, T, hs
         # attention (materializes the large T, T matrix for all queries and keys)
 
-        # att = q @ k.transpose(-2, -1) * (1.0 / math.sqrt(k.size(-1)))  # B, nh, T, T
-        # att = att.masked_fill(self.bias[:, :, :T, :T] == 0, float("-inf"))
-        # att = F.softmax(att, dim=-1)
-        # y = att @ v  # B, nh, T, hs
-        y = F.scaled_dot_product_attention(q, k, v, is_causal=True)
+        if self.flash:
+            # fused attention kernel (FlashAttention on CUDA); never materializes the T x T matrix
+            y = F.scaled_dot_product_attention(q, k, v, is_causal=True)  # B, nh, T, hs
+        else:
+            # manual attention: materializes the large T x T matrix
+            att = q @ k.transpose(-2, -1) * (1.0 / math.sqrt(k.size(-1)))  # B, nh, T, T
+            att = att.masked_fill(self.bias[:, :, :T, :T] == 0, float("-inf"))
+            att = F.softmax(att, dim=-1)
+            y = att @ v  # B, nh, T, hs
 
         y = (
             y.transpose(1, 2).contiguous().view(B, T, C)
@@ -97,6 +102,7 @@ class GPTConfig:
     n_layer: int = 12
     n_head: int = 12
     n_embd: int = 768
+    flash: bool = True  # True: F.scaled_dot_product_attention; False: manual attention
 
 
 class GPT(nn.Module):
@@ -355,6 +361,28 @@ else:
     print(f"using device: {device}")
 device_type = "cuda" if device.startswith("cuda") else device
 
+# ======================= run configuration (toggle here) =======================
+# perf switches -- flip one at a time to fill perf.md
+use_tf32 = True  # TF32 matmuls on Ampere+ GPUs (no effect on MPS)
+use_bf16 = True  # bf16 autocast on CUDA (ignored on MPS / CPU)
+use_compile = False  # torch.compile; HellaSwag + sampling are skipped when True
+use_flash = True  # fused attention (SDPA) vs manual attention
+vocab_size = 50304  # 50257 = original GPT-2 vocab, 50304 = "nice number" padding
+
+# batch / schedule
+total_batch_size = 4 * 1024 * 2  # tokens per optimizer step; 524288 (2**19) for real runs
+B = 4  # micro batch size; 64 on an 80 GB GPU, <= 32 on MPS
+T = 1024  # sequence length
+max_steps = 20  # 19073 = one pass over 10B tokens; ~50 for perf runs
+warmup_steps = 715  # 715 for the full run; ~10 for perf runs
+
+# evals / logging
+run_evals = True  # val loss, HellaSwag and sampling every eval_interval steps
+eval_interval = 250
+save_checkpoints = True  # model checkpoint every 5000 steps and at the last step
+perf_skip_steps = 3  # warm-up steps excluded from the perf summary
+# ===============================================================================
+
 torch.manual_seed(1337)
 if torch.cuda.is_available():
     torch.cuda.manual_seed(1337)
@@ -364,9 +392,6 @@ if device_type == "mps" and torch.mps.is_available():
 
 # get a data batch
 # total_batch_size = 524288  # 2**19 ~ 0.5M in number of tokens
-total_batch_size = 4 * 1024 * 2
-B = 4  # micro batch size
-T = 1024
 assert (
     total_batch_size % (B * T * ddp_world_size) == 0
 ), "make sure total_batch_size is dicisible by B*T*ddp_world_size"
@@ -383,19 +408,20 @@ val_loader = DataLoaderLite(
     B=B, T=T, process_rank=ddp_rank, num_processes=ddp_world_size, split="val"
 )
 
-torch.set_float32_matmul_precision("high")
+if use_tf32:
+    torch.set_float32_matmul_precision("high")
 
 # create model
 model = GPT(
     GPTConfig(
-        vocab_size=50304
+        vocab_size=vocab_size,
+        flash=use_flash,
         # n_embd=1024,
         # n_head=16
     )
 )
 model.to(device)
 raw_model = model  # keep a handle on the uncompiled model
-use_compile = False
 if use_compile:
     model = torch.compile(model)
 if ddp:
@@ -404,10 +430,6 @@ if ddp:
 
 max_lr = 6e-4
 min_lr = max_lr * 0.1
-# warmup_steps = 10
-warmup_steps = 715
-max_steps = 20
-# max_steps = 19073
 
 
 def get_lr(it):
@@ -432,6 +454,26 @@ os.makedirs(log_dir, exist_ok=True)
 log_file = os.path.join(log_dir, f"log.txt")
 with open(log_file, "w") as f:
     pass
+perf_file = os.path.join(log_dir, "perf.csv")
+run_tag = (
+    f"tf32={use_tf32} bf16={use_bf16} compile={use_compile} flash={use_flash} "
+    f"vocab={vocab_size} B={B} T={T} total={total_batch_size} gpus={ddp_world_size} device={device_type}"
+)
+if master_process:
+    print(f"run config: {run_tag}")
+    with open(perf_file, "w") as f:
+        f.write(f"# {run_tag}\n")
+        f.write("step,dt_ms,tok_per_sec,tflops,peak_mem_gb\n")
+perf_rows = []  # (dt_ms, tok_per_sec, tflops, peak_mem_gb) after warm-up
+
+
+def peak_mem_gb():
+    if device_type == "cuda":
+        return torch.cuda.max_memory_allocated() / 1e9
+    if device_type == "mps":
+        return torch.mps.driver_allocated_memory() / 1e9
+    return 0.0
+
 
 
 flops_per_tok = raw_model.flops_per_token(train_loader.T)
@@ -440,7 +482,7 @@ for step in range(max_steps):
     last_step = (step == max_steps - 1)
 
     # once in a while evalutate our validation loss
-    if step % 250 == 0 or last_step:
+    if (run_evals and step % eval_interval == 0) or last_step:
         model.eval()
         val_loader.reset()
         with torch.no_grad():
@@ -449,7 +491,7 @@ for step in range(max_steps):
             for _ in range(val_loss_steps):
                 x, y = val_loader.next_batch()
                 x, y = x.to(device), y.to(device)
-                if device_type == "cuda":
+                if device_type == "cuda" and use_bf16:
                     with torch.autocast(device_type=device_type, dtype=torch.bfloat16):
                         logits, loss = model(x, y)
                 else:
@@ -463,9 +505,18 @@ for step in range(max_steps):
             print(f"validation loss: {val_loss_accum.item():.4f}")
             with open(log_file, "a") as f:
                 f.write(f"{step} val {val_loss_accum.item():.4f}\n")
+            if save_checkpoints and step > 0 and (step % 5000 == 0 or last_step):
+                checkpoint_path = os.path.join(log_dir, f"model_{step:05d}.pt")
+                checkpoint = {
+                    'model': raw_model.state_dict(),
+                    'config': raw_model.config,
+                    'step': step,
+                    'val_loss': val_loss_accum.item()
+                }
+                torch.save(checkpoint, checkpoint_path)
 
     # once in a while evaluate hellaswag
-    if (step % 250 == 0 or last_step) and (not use_compile):
+    if run_evals and (step % eval_interval == 0 or last_step) and (not use_compile):
         num_correct_norm = 0
         num_total = 0
         for i, example in enumerate(iterate_examples('val')):
@@ -478,7 +529,7 @@ for step in range(max_steps):
             mask = mask.to(device)
             # get the logits
             with torch.no_grad():
-                if device_type == "cuda":
+                if device_type == "cuda" and use_bf16:
                     with torch.autocast(device_type=device_type, dtype=torch.bfloat16):
                         logits, loss = model(tokens)
                 else:
@@ -503,7 +554,7 @@ for step in range(max_steps):
 
 
     # once in a while generate from the model
-    if ((step > 0 and step % 250 == 0) or last_step) and (not use_compile):
+    if run_evals and ((step > 0 and step % eval_interval == 0) or last_step) and (not use_compile):
         model.eval()
         num_return_sequences = 4
         max_length = 32
@@ -537,7 +588,7 @@ for step in range(max_steps):
     for micro_step in range(grad_accum_steps):
         x, y = train_loader.next_batch()
         x, y = x.to(device), y.to(device)
-        if device_type == "cuda":
+        if device_type == "cuda" and use_bf16:
             with torch.autocast(device_type=device_type, dtype=torch.bfloat16):
                 logits, loss = model(x, y)
         else:
@@ -567,9 +618,28 @@ for step in range(max_steps):
     tokens_per_sec = tokens_processed / dt
     tflops = flops_per_tok * tokens_per_sec / 1e12
     if master_process:
+        mem = peak_mem_gb()
         print(
-            f"step {step:4d}| loss: {loss_accum.item():.6f}| lr: {lr:.4e}| norm: {norm:.4f}| dt: {dt * 1000:.2f}ms| tok/sec: {tokens_per_sec:.0f}| TFLOPS: {tflops:.2f}"
+            f"step {step:4d}| loss: {loss_accum.item():.6f}| lr: {lr:.4e}| norm: {norm:.4f}| dt: {dt * 1000:.2f}ms| tok/sec: {tokens_per_sec:.0f}| TFLOPS: {tflops:.2f}| mem: {mem:.1f}GB"
         )
+        with open(log_file, "a") as f:
+            f.write(f"{step} train {loss_accum.item():.6f}\n")
+        with open(perf_file, "a") as f:
+            f.write(f"{step},{dt * 1000:.2f},{tokens_per_sec:.0f},{tflops:.3f},{mem:.2f}\n")
+        if step >= perf_skip_steps:
+            perf_rows.append((dt * 1000, tokens_per_sec, tflops, mem))
+
+if master_process and perf_rows:
+    n = len(perf_rows)
+    avg = lambda i: sum(r[i] for r in perf_rows) / n
+    print("=" * 80)
+    print(f"perf summary ({run_tag})")
+    print(
+        f"steps {perf_skip_steps}..{max_steps - 1} (n={n}): "
+        f"dt {avg(0):.1f} ms | {avg(1):.0f} tok/s | {avg(2):.2f} TFLOPS | "
+        f"peak mem {max(r[3] for r in perf_rows):.1f} GB"
+    )
+    print("=" * 80)
 
 if ddp:
     destroy_process_group()
