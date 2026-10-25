@@ -1,0 +1,553 @@
+ _____                             _
+|  __ \                           | |
+| |__) |   _ _ __  _ __   ___   __| |
+|  _  / | | | '_ \| '_ \ / _ \ / _` |
+| | \ \ |_| | | | | |_) | (_) | (_| |
+|_|  \_\__,_|_| |_| .__/ \___/ \__,_|
+                  | |
+                  |_|
+For detailed documentation and guides, please visit:
+https://docs.runpod.io/
+and https://blog.runpod.io
+
+root@3e15ef46d637:/workspace/gpt2# mkdir -p perf_results
+root@3e15ef46d637:/workspace/gpt2# CUDA_VISIBLE_DEVICES=0 python train_gpt2.py
+Traceback (most recent call last):
+  File "/workspace/gpt2/train_gpt2.py", line 11, in <module>
+    from hellaswag import iterate_examples, render_example
+  File "/workspace/gpt2/hellaswag.py", line 47, in <module>
+    from transformers import GPT2LMHeadModel
+ModuleNotFoundError: No module named 'transformers'
+root@3e15ef46d637:/workspace/gpt2# pip install -q transformers
+root@3e15ef46d637:/workspace/gpt2# pip install -q transformers && python -c "import torch, numpy, tiktoken, datasets, transformers; print('all imports ok')" && CU
+DA_VISIBLE_DEVICES=0 python train_gpt2.py
+all imports ok
+using device: cuda
+total desired batch size: 524288
+=> calculated gradient accumulation steps: 32
+found 99 shards for split train
+found 1 shards for split val
+num decayed parameter tensors: 50, with 124354560 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+using fused AdamW: True
+run config: tf32=True bf16=True compile=False flash=True vocab=50304 B=16 T=1024 total=524288 gpus=1 device=cuda
+training FLOPs per token: 854,654,976
+step    0| loss: 10.955015| lr: 6.0000e-05| norm: 15.3421| dt: 1812.68ms| tok/sec: 289234| TFLOPS: 247.20| mem: 16.8GB
+step    1| loss: 10.164314| lr: 1.2000e-04| norm: 6.6628| dt: 1578.90ms| tok/sec: 332059| TFLOPS: 283.80| mem: 17.8GB
+step    2| loss: 9.775265| lr: 1.8000e-04| norm: 2.7970| dt: 1577.70ms| tok/sec: 332312| TFLOPS: 284.01| mem: 17.8GB
+step    3| loss: 9.559550| lr: 2.4000e-04| norm: 2.2816| dt: 1576.40ms| tok/sec: 332586| TFLOPS: 284.25| mem: 17.8GB
+step    4| loss: 9.388500| lr: 3.0000e-04| norm: 2.0646| dt: 1577.06ms| tok/sec: 332445| TFLOPS: 284.13| mem: 17.8GB
+step    5| loss: 9.183455| lr: 3.6000e-04| norm: 2.0422| dt: 1576.29ms| tok/sec: 332608| TFLOPS: 284.27| mem: 17.8GB
+step    6| loss: 8.944454| lr: 4.2000e-04| norm: 1.8838| dt: 1573.75ms| tok/sec: 333146| TFLOPS: 284.72| mem: 17.8GB
+step    7| loss: 8.690921| lr: 4.8000e-04| norm: 1.6508| dt: 1574.20ms| tok/sec: 333051| TFLOPS: 284.64| mem: 17.8GB
+step    8| loss: 8.397915| lr: 5.4000e-04| norm: 1.4108| dt: 1575.28ms| tok/sec: 332823| TFLOPS: 284.45| mem: 17.8GB
+step    9| loss: 8.154274| lr: 6.0000e-04| norm: 1.2937| dt: 1575.01ms| tok/sec: 332878| TFLOPS: 284.50| mem: 17.8GB
+step   10| loss: 8.035107| lr: 6.0000e-04| norm: 2.0971| dt: 1573.90ms| tok/sec: 333113| TFLOPS: 284.70| mem: 17.8GB
+step   11| loss: 7.877743| lr: 5.8679e-04| norm: 1.2754| dt: 1575.51ms| tok/sec: 332774| TFLOPS: 284.41| mem: 17.8GB
+step   12| loss: 7.825933| lr: 5.4843e-04| norm: 0.9475| dt: 1572.93ms| tok/sec: 333319| TFLOPS: 284.87| mem: 17.8GB
+step   13| loss: 7.767179| lr: 4.8870e-04| norm: 0.7047| dt: 1572.82ms| tok/sec: 333343| TFLOPS: 284.89| mem: 17.8GB
+step   14| loss: 7.631006| lr: 4.1343e-04| norm: 1.1635| dt: 1575.52ms| tok/sec: 332771| TFLOPS: 284.40| mem: 17.8GB
+step   15| loss: 7.639169| lr: 3.3000e-04| norm: 0.8023| dt: 1574.68ms| tok/sec: 332948| TFLOPS: 284.56| mem: 17.8GB
+step   16| loss: 7.695032| lr: 2.4657e-04| norm: 0.5341| dt: 1576.03ms| tok/sec: 332665| TFLOPS: 284.31| mem: 17.8GB
+step   17| loss: 7.634791| lr: 1.7130e-04| norm: 0.6445| dt: 1576.69ms| tok/sec: 332525| TFLOPS: 284.19| mem: 17.8GB
+step   18| loss: 7.855085| lr: 1.1157e-04| norm: 0.6676| dt: 1578.31ms| tok/sec: 332183| TFLOPS: 283.90| mem: 17.8GB
+validation loss: 7.6377
+step   19| loss: 7.932615| lr: 7.3215e-05| norm: 0.6971| dt: 1577.15ms| tok/sec: 332428| TFLOPS: 284.11| mem: 17.8GB
+================================================================================
+perf summary (tf32=True bf16=True compile=False flash=True vocab=50304 B=16 T=1024 total=524288 gpus=1 device=cuda)
+steps 3..19 (n=17): dt 1575.4 ms | 332800 tok/s | 284.43 TFLOPS | peak mem 17.8 GB
+================================================================================
+root@3e15ef46d637:/workspace/gpt2# mkdir -p perf_results^C
+root@3e15ef46d637:/workspace/gpt2# cp log/perf.csv perf_results/r1.csv
+root@3e15ef46d637:/workspace/gpt2# cp log/perf.csv perf_results/r0_nocompile.csv
+root@3e15ef46d637:/workspace/gpt2# cd /workspace/gpt2 && mkdir -p perf_results && sed -i -E 's/^total_batch_size = [^#]*/total_batch_size = 524288  /; s/^(B = )[^
+ #]+/\116/; s/^(max_steps = )[^ #]+/\120/; s/^(warmup_steps = )[^ #]+/\110/; s/^(run_evals = )[^ #]+/\1False/; s/^(save_checkpoints = )[^ #]+/\1False/' train_gpt2
+.py && grep -E "^(total_batch_size|B|max_steps|warmup_steps|run_evals|save_checkpoints) =" train_gpt2.py
+total_batch_size = 524288  # tokens per optimizer step; 524288 (2**19) for real runs
+B = 16  # micro batch size; 64 on an 80 GB GPU, <= 32 on MPS
+max_steps = 20  # 19073 = one pass over 10B tokens; ~50 for perf runs
+warmup_steps = 10  # 715 for the full run; ~10 for perf runs
+run_evals = False  # val loss, HellaSwag and sampling every eval_interval steps
+save_checkpoints = False  # model checkpoint every 5000 steps and at the last step
+root@3e15ef46d637:/workspace/gpt2# sed -i -E 's/^(use_tf32 = )[^ #]+/\1False/; s/^(use_bf16 = )[^ #]+/\1False/; s/^(use_compile = )[^ #]+/\1False/; s/^(use_flash
+= )[^ #]+/\1False/; s/^(vocab_size = )[^ #]+/\150257/' train_gpt2.py && grep -E "^(use_|vocab_size)" train_gpt2.py && CUDA_VISIBLE_DEVICES=0 python train_gpt2.py
+&& cp log/perf.csv perf_results/r1_fp32.csv
+use_tf32 = False  # TF32 matmuls on Ampere+ GPUs (no effect on MPS)
+use_bf16 = False  # bf16 autocast on CUDA (ignored on MPS / CPU)
+use_compile = False  # torch.compile; HellaSwag + sampling are skipped when True
+use_flash = False  # fused attention (SDPA) vs manual attention
+vocab_size = 50257  # 50257 = original GPT-2 vocab, 50304 = "nice number" padding
+using device: cuda
+total desired batch size: 524288
+=> calculated gradient accumulation steps: 32
+found 99 shards for split train
+found 1 shards for split val
+num decayed parameter tensors: 50, with 124318464 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+using fused AdamW: True
+run config: tf32=False bf16=False compile=False flash=False vocab=50257 B=16 T=1024 total=524288 gpus=1 device=cuda
+training FLOPs per token: 854,438,400
+^[[B^[[B^[[B^[[B^[[B^[[Bstep    0| loss: 10.978473| lr: 6.0000e-05| norm: 16.0909| dt: 12638.00ms| tok/sec: 41485| TFLOPS: 35.45| mem: 33.7GB
+step    1| loss: 10.133974| lr: 1.2000e-04| norm: 6.7257| dt: 12402.70ms| tok/sec: 42272| TFLOPS: 36.12| mem: 34.7GB
+step    2| loss: 9.747359| lr: 1.8000e-04| norm: 2.9382| dt: 12405.03ms| tok/sec: 42264| TFLOPS: 36.11| mem: 34.7GB
+step    3| loss: 9.524152| lr: 2.4000e-04| norm: 2.2768| dt: 12400.38ms| tok/sec: 42280| TFLOPS: 36.13| mem: 34.7GB
+step    4| loss: 9.359756| lr: 3.0000e-04| norm: 2.0518| dt: 12402.22ms| tok/sec: 42274| TFLOPS: 36.12| mem: 34.7GB
+step    5| loss: 9.152060| lr: 3.6000e-04| norm: 1.9833| dt: 12404.33ms| tok/sec: 42267| TFLOPS: 36.11| mem: 34.7GB
+^[[A^[[A^[[A^[[A^[[A^[[B^[[B^[[B^[[Bstep    6| loss: 8.915713| lr: 4.2000e-04| norm: 1.7930| dt: 12403.87ms| tok/sec: 42268| TFLOPS: 36.12| mem: 34.7GB
+step    7| loss: 8.670567| lr: 4.8000e-04| norm: 1.5228| dt: 12403.16ms| tok/sec: 42271| TFLOPS: 36.12| mem: 34.7GB
+^[[B^[[Bstep    8| loss: 8.383999| lr: 5.4000e-04| norm: 1.3264| dt: 12404.09ms| tok/sec: 42267| TFLOPS: 36.11| mem: 34.7GB
+step    9| loss: 8.161998| lr: 6.0000e-04| norm: 1.7511| dt: 12402.11ms| tok/sec: 42274| TFLOPS: 36.12| mem: 34.7GB
+step   10| loss: 8.029005| lr: 6.0000e-04| norm: 1.3532| dt: 12402.84ms| tok/sec: 42272| TFLOPS: 36.12| mem: 34.7GB
+step   11| loss: 7.877527| lr: 5.8679e-04| norm: 1.1490| dt: 12402.87ms| tok/sec: 42271| TFLOPS: 36.12| mem: 34.7GB
+step   12| loss: 7.808255| lr: 5.4843e-04| norm: 0.7667| dt: 12398.51ms| tok/sec: 42286| TFLOPS: 36.13| mem: 34.7GB
+step   13| loss: 7.776014| lr: 4.8870e-04| norm: 1.3825| dt: 12398.55ms| tok/sec: 42286| TFLOPS: 36.13| mem: 34.7GB
+step   14| loss: 7.612224| lr: 4.1343e-04| norm: 0.7710| dt: 12398.82ms| tok/sec: 42285| TFLOPS: 36.13| mem: 34.7GB
+step   15| loss: 7.635153| lr: 3.3000e-04| norm: 0.6455| dt: 12399.17ms| tok/sec: 42284| TFLOPS: 36.13| mem: 34.7GB
+step   16| loss: 7.690677| lr: 2.4657e-04| norm: 0.5668| dt: 12402.87ms| tok/sec: 42272| TFLOPS: 36.12| mem: 34.7GB
+step   17| loss: 7.626608| lr: 1.7130e-04| norm: 0.5240| dt: 12404.59ms| tok/sec: 42266| TFLOPS: 36.11| mem: 34.7GB
+step   18| loss: 7.840717| lr: 1.1157e-04| norm: 0.8074| dt: 12400.69ms| tok/sec: 42279| TFLOPS: 36.12| mem: 34.7GB
+validation loss: 7.6293
+step   19| loss: 7.926713| lr: 7.3215e-05| norm: 0.6851| dt: 12403.51ms| tok/sec: 42269| TFLOPS: 36.12| mem: 34.7GB
+================================================================================
+perf summary (tf32=False bf16=False compile=False flash=False vocab=50257 B=16 T=1024 total=524288 gpus=1 device=cuda)
+steps 3..19 (n=17): dt 12401.9 ms | 42275 tok/s | 36.12 TFLOPS | peak mem 34.7 GB
+================================================================================
+root@3e15ef46d637:/workspace/gpt2# sed -i -E 's/^(use_tf32 = )[^ #]+/\1True/' train_gpt2.py && grep -E "^(use_|vocab_size)" train_gpt2.py && CUDA_VISIBLE_DEVICES=
+0 python train_gpt2.py && cp log/perf.csv perf_results/r2_tf32.csv
+use_tf32 = True  # TF32 matmuls on Ampere+ GPUs (no effect on MPS)
+use_bf16 = False  # bf16 autocast on CUDA (ignored on MPS / CPU)
+use_compile = False  # torch.compile; HellaSwag + sampling are skipped when True
+use_flash = False  # fused attention (SDPA) vs manual attention
+vocab_size = 50257  # 50257 = original GPT-2 vocab, 50304 = "nice number" padding
+using device: cuda
+total desired batch size: 524288
+=> calculated gradient accumulation steps: 32
+found 99 shards for split train
+found 1 shards for split val
+num decayed parameter tensors: 50, with 124318464 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+using fused AdamW: True
+run config: tf32=True bf16=False compile=False flash=False vocab=50257 B=16 T=1024 total=524288 gpus=1 device=cuda
+training FLOPs per token: 854,438,400
+step    0| loss: 10.978456| lr: 6.0000e-05| norm: 16.0875| dt: 6081.93ms| tok/sec: 86204| TFLOPS: 73.66| mem: 33.7GB
+step    1| loss: 10.133969| lr: 1.2000e-04| norm: 6.7242| dt: 5847.15ms| tok/sec: 89666| TFLOPS: 76.61| mem: 34.7GB
+step    2| loss: 9.747345| lr: 1.8000e-04| norm: 2.9379| dt: 5847.27ms| tok/sec: 89664| TFLOPS: 76.61| mem: 34.7GB
+^[[Bstep    3| loss: 9.524152| lr: 2.4000e-04| norm: 2.2769| dt: 5844.51ms| tok/sec: 89706| TFLOPS: 76.65| mem: 34.7GB
+step    4| loss: 9.359784| lr: 3.0000e-04| norm: 2.0518| dt: 5844.21ms| tok/sec: 89711| TFLOPS: 76.65| mem: 34.7GB
+step    5| loss: 9.152060| lr: 3.6000e-04| norm: 1.9834| dt: 5862.93ms| tok/sec: 89424| TFLOPS: 76.41| mem: 34.7GB
+step    6| loss: 8.915748| lr: 4.2000e-04| norm: 1.7933| dt: 5842.95ms| tok/sec: 89730| TFLOPS: 76.67| mem: 34.7GB
+step    7| loss: 8.670572| lr: 4.8000e-04| norm: 1.5230| dt: 5840.49ms| tok/sec: 89768| TFLOPS: 76.70| mem: 34.7GB
+^[[A^[[A^[[B^[[Bstep    8| loss: 8.384047| lr: 5.4000e-04| norm: 1.3264| dt: 5842.06ms| tok/sec: 89744| TFLOPS: 76.68| mem: 34.7GB
+step    9| loss: 8.162351| lr: 6.0000e-04| norm: 1.7639| dt: 5842.65ms| tok/sec: 89735| TFLOPS: 76.67| mem: 34.7GB
+step   10| loss: 8.029140| lr: 6.0000e-04| norm: 1.3486| dt: 5842.21ms| tok/sec: 89741| TFLOPS: 76.68| mem: 34.7GB
+step   11| loss: 7.877486| lr: 5.8679e-04| norm: 1.1466| dt: 5842.23ms| tok/sec: 89741| TFLOPS: 76.68| mem: 34.7GB
+step   12| loss: 7.808132| lr: 5.4843e-04| norm: 0.7635| dt: 5848.24ms| tok/sec: 89649| TFLOPS: 76.60| mem: 34.7GB
+step   13| loss: 7.776278| lr: 4.8870e-04| norm: 1.3944| dt: 5844.66ms| tok/sec: 89704| TFLOPS: 76.65| mem: 34.7GB
+step   14| loss: 7.612355| lr: 4.1343e-04| norm: 0.7730| dt: 5842.42ms| tok/sec: 89738| TFLOPS: 76.68| mem: 34.7GB
+step   15| loss: 7.635373| lr: 3.3000e-04| norm: 0.6493| dt: 5842.03ms| tok/sec: 89744| TFLOPS: 76.68| mem: 34.7GB
+step   16| loss: 7.690753| lr: 2.4657e-04| norm: 0.5653| dt: 5839.18ms| tok/sec: 89788| TFLOPS: 76.72| mem: 34.7GB
+step   17| loss: 7.626725| lr: 1.7130e-04| norm: 0.5250| dt: 5844.67ms| tok/sec: 89704| TFLOPS: 76.65| mem: 34.7GB
+step   18| loss: 7.840768| lr: 1.1157e-04| norm: 0.8053| dt: 5845.10ms| tok/sec: 89697| TFLOPS: 76.64| mem: 34.7GB
+validation loss: 7.6294
+step   19| loss: 7.926856| lr: 7.3215e-05| norm: 0.6884| dt: 5842.43ms| tok/sec: 89738| TFLOPS: 76.68| mem: 34.7GB
+================================================================================
+perf summary (tf32=True bf16=False compile=False flash=False vocab=50257 B=16 T=1024 total=524288 gpus=1 device=cuda)
+steps 3..19 (n=17): dt 5844.3 ms | 89709 tok/s | 76.65 TFLOPS | peak mem 34.7 GB
+================================================================================
+root@3e15ef46d637:/workspace/gpt2# sed -i -E 's/^(use_bf16 = )[^ #]+/\1True/' train_gpt2.py && grep -E "^(use_|vocab_size)" train_gpt2.py && CUDA_VISIBLE_DEVICES=
+0 python train_gpt2.py && cp log/perf.csv perf_results/r3_bf16.csv
+use_tf32 = True  # TF32 matmuls on Ampere+ GPUs (no effect on MPS)
+use_bf16 = True  # bf16 autocast on CUDA (ignored on MPS / CPU)
+use_compile = False  # torch.compile; HellaSwag + sampling are skipped when True
+use_flash = False  # fused attention (SDPA) vs manual attention
+vocab_size = 50257  # 50257 = original GPT-2 vocab, 50304 = "nice number" padding
+using device: cuda
+total desired batch size: 524288
+=> calculated gradient accumulation steps: 32
+found 99 shards for split train
+found 1 shards for split val
+num decayed parameter tensors: 50, with 124318464 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+using fused AdamW: True
+run config: tf32=True bf16=True compile=False flash=False vocab=50257 B=16 T=1024 total=524288 gpus=1 device=cuda
+training FLOPs per token: 854,438,400
+step    0| loss: 10.978725| lr: 6.0000e-05| norm: 16.0879| dt: 5450.51ms| tok/sec: 96191| TFLOPS: 82.19| mem: 31.3GB
+step    1| loss: 10.134183| lr: 1.2000e-04| norm: 6.7334| dt: 5173.95ms| tok/sec: 101332| TFLOPS: 86.58| mem: 32.3GB
+step    2| loss: 9.749084| lr: 1.8000e-04| norm: 2.9414| dt: 5169.11ms| tok/sec: 101427| TFLOPS: 86.66| mem: 32.3GB
+step    3| loss: 9.523750| lr: 2.4000e-04| norm: 2.2749| dt: 5165.50ms| tok/sec: 101498| TFLOPS: 86.72| mem: 32.3GB
+step    4| loss: 9.356823| lr: 3.0000e-04| norm: 2.0494| dt: 5163.34ms| tok/sec: 101540| TFLOPS: 86.76| mem: 32.3GB
+step    5| loss: 9.150449| lr: 3.6000e-04| norm: 1.9824| dt: 5164.11ms| tok/sec: 101525| TFLOPS: 86.75| mem: 32.3GB
+step    6| loss: 8.915861| lr: 4.2000e-04| norm: 1.7966| dt: 5167.73ms| tok/sec: 101454| TFLOPS: 86.69| mem: 32.3GB
+step    7| loss: 8.671239| lr: 4.8000e-04| norm: 1.5241| dt: 5163.86ms| tok/sec: 101530| TFLOPS: 86.75| mem: 32.3GB
+step    8| loss: 8.384768| lr: 5.4000e-04| norm: 1.3266| dt: 5164.61ms| tok/sec: 101515| TFLOPS: 86.74| mem: 32.3GB
+step    9| loss: 8.161959| lr: 6.0000e-04| norm: 1.7442| dt: 5168.75ms| tok/sec: 101434| TFLOPS: 86.67| mem: 32.3GB
+step   10| loss: 8.028811| lr: 6.0000e-04| norm: 1.3424| dt: 5164.44ms| tok/sec: 101519| TFLOPS: 86.74| mem: 32.3GB
+step   11| loss: 7.877852| lr: 5.8679e-04| norm: 1.1501| dt: 5162.27ms| tok/sec: 101561| TFLOPS: 86.78| mem: 32.3GB
+step   12| loss: 7.808461| lr: 5.4843e-04| norm: 0.7632| dt: 5159.78ms| tok/sec: 101611| TFLOPS: 86.82| mem: 32.3GB
+step   13| loss: 7.776216| lr: 4.8870e-04| norm: 1.3966| dt: 5164.62ms| tok/sec: 101515| TFLOPS: 86.74| mem: 32.3GB
+step   14| loss: 7.613451| lr: 4.1343e-04| norm: 0.7751| dt: 5164.60ms| tok/sec: 101516| TFLOPS: 86.74| mem: 32.3GB
+step   15| loss: 7.634558| lr: 3.3000e-04| norm: 0.6472| dt: 5164.08ms| tok/sec: 101526| TFLOPS: 86.75| mem: 32.3GB
+step   16| loss: 7.690250| lr: 2.4657e-04| norm: 0.5658| dt: 5161.86ms| tok/sec: 101570| TFLOPS: 86.78| mem: 32.3GB
+step   17| loss: 7.626405| lr: 1.7130e-04| norm: 0.5246| dt: 5164.00ms| tok/sec: 101527| TFLOPS: 86.75| mem: 32.3GB
+step   18| loss: 7.841277| lr: 1.1157e-04| norm: 0.8008| dt: 5164.14ms| tok/sec: 101525| TFLOPS: 86.75| mem: 32.3GB
+validation loss: 7.6289
+step   19| loss: 7.926552| lr: 7.3215e-05| norm: 0.6946| dt: 5167.32ms| tok/sec: 101462| TFLOPS: 86.69| mem: 32.3GB
+================================================================================
+perf summary (tf32=True bf16=True compile=False flash=False vocab=50257 B=16 T=1024 total=524288 gpus=1 device=cuda)
+steps 3..19 (n=17): dt 5164.4 ms | 101519 tok/s | 86.74 TFLOPS | peak mem 32.3 GB
+================================================================================
+root@3e15ef46d637:/workspace/gpt2# sed -i -E 's/^(use_compile = )[^ #]+/\1True/' train_gpt2.py && grep -E "^(use_|vocab_size)" train_gpt2.py && CUDA_VISIBLE_DEVIC
+ES=0 python train_gpt2.py && cp log/perf.csv perf_results/r4_compile.csv
+use_tf32 = True  # TF32 matmuls on Ampere+ GPUs (no effect on MPS)
+use_bf16 = True  # bf16 autocast on CUDA (ignored on MPS / CPU)
+use_compile = True  # torch.compile; HellaSwag + sampling are skipped when True
+use_flash = False  # fused attention (SDPA) vs manual attention
+vocab_size = 50257  # 50257 = original GPT-2 vocab, 50304 = "nice number" padding
+using device: cuda
+total desired batch size: 524288
+=> calculated gradient accumulation steps: 32
+found 99 shards for split train
+found 1 shards for split val
+num decayed parameter tensors: 50, with 124318464 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+using fused AdamW: True
+run config: tf32=True bf16=True compile=True flash=False vocab=50257 B=16 T=1024 total=524288 gpus=1 device=cuda
+training FLOPs per token: 854,438,400
+step    0| loss: 10.978729| lr: 6.0000e-05| norm: 16.0896| dt: 18891.71ms| tok/sec: 27752| TFLOPS: 23.71| mem: 23.2GB
+step    1| loss: 10.134231| lr: 1.2000e-04| norm: 6.7343| dt: 1797.61ms| tok/sec: 291658| TFLOPS: 249.20| mem: 24.2GB
+step    2| loss: 9.747684| lr: 1.8000e-04| norm: 2.9389| dt: 1791.52ms| tok/sec: 292649| TFLOPS: 250.05| mem: 24.2GB
+step    3| loss: 9.524273| lr: 2.4000e-04| norm: 2.2761| dt: 1789.59ms| tok/sec: 292965| TFLOPS: 250.32| mem: 24.2GB
+step    4| loss: 9.359761| lr: 3.0000e-04| norm: 2.0533| dt: 1789.50ms| tok/sec: 292981| TFLOPS: 250.33| mem: 24.2GB
+step    5| loss: 9.152109| lr: 3.6000e-04| norm: 1.9830| dt: 1788.70ms| tok/sec: 293111| TFLOPS: 250.45| mem: 24.2GB
+step    6| loss: 8.915837| lr: 4.2000e-04| norm: 1.7937| dt: 1789.30ms| tok/sec: 293013| TFLOPS: 250.36| mem: 24.2GB
+step    7| loss: 8.670747| lr: 4.8000e-04| norm: 1.5243| dt: 1795.51ms| tok/sec: 292000| TFLOPS: 249.50| mem: 24.2GB
+step    8| loss: 8.384152| lr: 5.4000e-04| norm: 1.3263| dt: 1788.80ms| tok/sec: 293095| TFLOPS: 250.43| mem: 24.2GB
+step    9| loss: 8.162476| lr: 6.0000e-04| norm: 1.7629| dt: 1797.65ms| tok/sec: 291652| TFLOPS: 249.20| mem: 24.2GB
+step   10| loss: 8.028942| lr: 6.0000e-04| norm: 1.3422| dt: 1788.33ms| tok/sec: 293172| TFLOPS: 250.50| mem: 24.2GB
+step   11| loss: 7.876989| lr: 5.8679e-04| norm: 1.1426| dt: 1793.07ms| tok/sec: 292397| TFLOPS: 249.84| mem: 24.2GB
+step   12| loss: 7.807701| lr: 5.4843e-04| norm: 0.7593| dt: 1787.34ms| tok/sec: 293335| TFLOPS: 250.64| mem: 24.2GB
+step   13| loss: 7.776274| lr: 4.8870e-04| norm: 1.4013| dt: 1792.12ms| tok/sec: 292552| TFLOPS: 249.97| mem: 24.2GB
+step   14| loss: 7.612212| lr: 4.1343e-04| norm: 0.7729| dt: 1788.26ms| tok/sec: 293184| TFLOPS: 250.51| mem: 24.2GB
+step   15| loss: 7.635346| lr: 3.3000e-04| norm: 0.6501| dt: 1789.88ms| tok/sec: 292919| TFLOPS: 250.28| mem: 24.2GB
+^[[A^[[Astep   16| loss: 7.690582| lr: 2.4657e-04| norm: 0.5601| dt: 1789.87ms| tok/sec: 292920| TFLOPS: 250.28| mem: 24.2GB
+step   17| loss: 7.626643| lr: 1.7130e-04| norm: 0.5257| dt: 1791.79ms| tok/sec: 292605| TFLOPS: 250.01| mem: 24.2GB
+step   18| loss: 7.840594| lr: 1.1157e-04| norm: 0.7984| dt: 1791.77ms| tok/sec: 292609| TFLOPS: 250.02| mem: 24.2GB
+validation loss: 7.6293
+step   19| loss: 7.926808| lr: 7.3215e-05| norm: 0.6911| dt: 1790.73ms| tok/sec: 292779| TFLOPS: 250.16| mem: 24.2GB
+================================================================================
+perf summary (tf32=True bf16=True compile=True flash=False vocab=50257 B=16 T=1024 total=524288 gpus=1 device=cuda)
+steps 3..19 (n=17): dt 1790.7 ms | 292782 tok/s | 250.16 TFLOPS | peak mem 24.2 GB
+================================================================================
+root@3e15ef46d637:/workspace/gpt2# sed -i -E 's/^(use_bf16 = )[^ #]+/\1True/' train_gpt2.py && grep -E "^(use_|vocab_size)" train_gpt2.py && CUDA_VISIBLE_DEVICES=
+0 python train_gpt2.py && cp log/perf.csv perf_results/r3_bf16.csvsed -i -E 's/^(use_flash = )[^ #]+/\1True/' train_gpt2.py && grep -E "^(use_|vocab_size)" train_
+gpt2.py && CUDA_VISIBLE_DEVICES=0 python train_gpt2.py && cp log/perf.csv perf_results/r5_flash.csv^C
+root@3e15ef46d637:/workspace/gpt2# sed -i -E 's/^(use_flash = )[^ #]+/\1True/' train_gpt2.py && grep -E "^(use_|vocab_size)" train_gpt2.py && CUDA_VISIBLE_DEVICES
+=0 python train_gpt2.py && cp log/perf.csv perf_results/r5_flash.csv
+use_tf32 = True  # TF32 matmuls on Ampere+ GPUs (no effect on MPS)
+use_bf16 = True  # bf16 autocast on CUDA (ignored on MPS / CPU)
+use_compile = True  # torch.compile; HellaSwag + sampling are skipped when True
+use_flash = True  # fused attention (SDPA) vs manual attention
+vocab_size = 50257  # 50257 = original GPT-2 vocab, 50304 = "nice number" padding
+using device: cuda
+total desired batch size: 524288
+=> calculated gradient accumulation steps: 32
+found 99 shards for split train
+found 1 shards for split val
+num decayed parameter tensors: 50, with 124318464 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+using fused AdamW: True
+run config: tf32=True bf16=True compile=True flash=True vocab=50257 B=16 T=1024 total=524288 gpus=1 device=cuda
+training FLOPs per token: 854,438,400
+step    0| loss: 10.978731| lr: 6.0000e-05| norm: 16.0896| dt: 14400.27ms| tok/sec: 36408| TFLOPS: 31.11| mem: 13.5GB
+step    1| loss: 10.134230| lr: 1.2000e-04| norm: 6.7343| dt: 1279.39ms| tok/sec: 409796| TFLOPS: 350.15| mem: 14.5GB
+step    2| loss: 9.747683| lr: 1.8000e-04| norm: 2.9387| dt: 1278.57ms| tok/sec: 410057| TFLOPS: 350.37| mem: 14.5GB
+step    3| loss: 9.524275| lr: 2.4000e-04| norm: 2.2760| dt: 1281.79ms| tok/sec: 409029| TFLOPS: 349.49| mem: 14.5GB
+step    4| loss: 9.359759| lr: 3.0000e-04| norm: 2.0533| dt: 1286.21ms| tok/sec: 407621| TFLOPS: 348.29| mem: 14.5GB
+step    5| loss: 9.152123| lr: 3.6000e-04| norm: 1.9830| dt: 1282.12ms| tok/sec: 408923| TFLOPS: 349.40| mem: 14.5GB
+step    6| loss: 8.915858| lr: 4.2000e-04| norm: 1.7937| dt: 1285.52ms| tok/sec: 407841| TFLOPS: 348.47| mem: 14.5GB
+step    7| loss: 8.670778| lr: 4.8000e-04| norm: 1.5243| dt: 1280.58ms| tok/sec: 409413| TFLOPS: 349.82| mem: 14.5GB
+step    8| loss: 8.384185| lr: 5.4000e-04| norm: 1.3264| dt: 1283.80ms| tok/sec: 408389| TFLOPS: 348.94| mem: 14.5GB
+step    9| loss: 8.162467| lr: 6.0000e-04| norm: 1.7621| dt: 1283.60ms| tok/sec: 408450| TFLOPS: 349.00| mem: 14.5GB
+step   10| loss: 8.029021| lr: 6.0000e-04| norm: 1.3429| dt: 1276.71ms| tok/sec: 410655| TFLOPS: 350.88| mem: 14.5GB
+step   11| loss: 7.877000| lr: 5.8679e-04| norm: 1.1421| dt: 1282.00ms| tok/sec: 408961| TFLOPS: 349.43| mem: 14.5GB
+step   12| loss: 7.807708| lr: 5.4843e-04| norm: 0.7590| dt: 1277.70ms| tok/sec: 410337| TFLOPS: 350.61| mem: 14.5GB
+step   13| loss: 7.776123| lr: 4.8870e-04| norm: 1.3938| dt: 1296.00ms| tok/sec: 404543| TFLOPS: 345.66| mem: 14.5GB
+step   14| loss: 7.612133| lr: 4.1343e-04| norm: 0.7718| dt: 1284.18ms| tok/sec: 408266| TFLOPS: 348.84| mem: 14.5GB
+step   15| loss: 7.635212| lr: 3.3000e-04| norm: 0.6487| dt: 1279.18ms| tok/sec: 409863| TFLOPS: 350.20| mem: 14.5GB
+step   16| loss: 7.690464| lr: 2.4657e-04| norm: 0.5596| dt: 1294.16ms| tok/sec: 405117| TFLOPS: 346.15| mem: 14.5GB
+step   17| loss: 7.626632| lr: 1.7130e-04| norm: 0.5291| dt: 1288.74ms| tok/sec: 406821| TFLOPS: 347.60| mem: 14.5GB
+step   18| loss: 7.840542| lr: 1.1157e-04| norm: 0.7971| dt: 1293.86ms| tok/sec: 405214| TFLOPS: 346.23| mem: 14.5GB
+validation loss: 7.6292
+step   19| loss: 7.926701| lr: 7.3215e-05| norm: 0.6880| dt: 1281.14ms| tok/sec: 409236| TFLOPS: 349.67| mem: 14.5GB
+================================================================================
+perf summary (tf32=True bf16=True compile=True flash=True vocab=50257 B=16 T=1024 total=524288 gpus=1 device=cuda)
+steps 3..19 (n=17): dt 1284.5 ms | 408158 tok/s | 348.75 TFLOPS | peak mem 14.5 GB
+================================================================================
+root@3e15ef46d637:/workspace/gpt2# sed -i -E 's/^(vocab_size = )[^ #]+/\150304/' train_gpt2.py && grep -E "^(use_|vocab_size)" train_gpt2.py && CUDA_VISIBLE_DEVIC
+ES=0 python train_gpt2.py && cp log/perf.csv perf_results/r6_vocab.csv
+use_tf32 = True  # TF32 matmuls on Ampere+ GPUs (no effect on MPS)
+use_bf16 = True  # bf16 autocast on CUDA (ignored on MPS / CPU)
+use_compile = True  # torch.compile; HellaSwag + sampling are skipped when True
+use_flash = True  # fused attention (SDPA) vs manual attention
+vocab_size = 50304  # 50257 = original GPT-2 vocab, 50304 = "nice number" padding
+using device: cuda
+total desired batch size: 524288
+=> calculated gradient accumulation steps: 32
+found 99 shards for split train
+found 1 shards for split val
+num decayed parameter tensors: 50, with 124354560 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+using fused AdamW: True
+run config: tf32=True bf16=True compile=True flash=True vocab=50304 B=16 T=1024 total=524288 gpus=1 device=cuda
+training FLOPs per token: 854,654,976
+step    0| loss: 10.955006| lr: 6.0000e-05| norm: 15.3422| dt: 13299.54ms| tok/sec: 39422| TFLOPS: 33.69| mem: 11.9GB
+step    1| loss: 10.165103| lr: 1.2000e-04| norm: 6.6637| dt: 1209.74ms| tok/sec: 433391| TFLOPS: 370.40| mem: 12.9GB
+step    2| loss: 9.774545| lr: 1.8000e-04| norm: 2.7958| dt: 1210.09ms| tok/sec: 433263| TFLOPS: 370.29| mem: 12.9GB
+step    3| loss: 9.557761| lr: 2.4000e-04| norm: 2.2801| dt: 1215.50ms| tok/sec: 431334| TFLOPS: 368.64| mem: 12.9GB
+step    4| loss: 9.390200| lr: 3.0000e-04| norm: 2.0680| dt: 1208.80ms| tok/sec: 433725| TFLOPS: 370.68| mem: 12.9GB
+step    5| loss: 9.184052| lr: 3.6000e-04| norm: 2.0413| dt: 1209.94ms| tok/sec: 433316| TFLOPS: 370.34| mem: 12.9GB
+step    6| loss: 8.947039| lr: 4.2000e-04| norm: 1.8887| dt: 1202.41ms| tok/sec: 436031| TFLOPS: 372.66| mem: 12.9GB
+step    7| loss: 8.690593| lr: 4.8000e-04| norm: 1.6471| dt: 1208.43ms| tok/sec: 433858| TFLOPS: 370.80| mem: 12.9GB
+step    8| loss: 8.398365| lr: 5.4000e-04| norm: 1.4126| dt: 1215.00ms| tok/sec: 431514| TFLOPS: 368.80| mem: 12.9GB
+step    9| loss: 8.153574| lr: 6.0000e-04| norm: 1.2821| dt: 1212.51ms| tok/sec: 432398| TFLOPS: 369.55| mem: 12.9GB
+step   10| loss: 8.032615| lr: 6.0000e-04| norm: 2.0601| dt: 1211.83ms| tok/sec: 432640| TFLOPS: 369.76| mem: 12.9GB
+step   11| loss: 7.877925| lr: 5.8679e-04| norm: 1.3028| dt: 1213.53ms| tok/sec: 432034| TFLOPS: 369.24| mem: 12.9GB
+step   12| loss: 7.828173| lr: 5.4843e-04| norm: 0.9613| dt: 1196.49ms| tok/sec: 438188| TFLOPS: 374.50| mem: 12.9GB
+step   13| loss: 7.769124| lr: 4.8870e-04| norm: 0.7199| dt: 1201.48ms| tok/sec: 436369| TFLOPS: 372.95| mem: 12.9GB
+step   14| loss: 7.631938| lr: 4.1343e-04| norm: 1.1907| dt: 1192.03ms| tok/sec: 439829| TFLOPS: 375.90| mem: 12.9GB
+step   15| loss: 7.639275| lr: 3.3000e-04| norm: 0.8452| dt: 1200.80ms| tok/sec: 436617| TFLOPS: 373.16| mem: 12.9GB
+step   16| loss: 7.696074| lr: 2.4657e-04| norm: 0.5395| dt: 1201.92ms| tok/sec: 436208| TFLOPS: 372.81| mem: 12.9GB
+step   17| loss: 7.635194| lr: 1.7130e-04| norm: 0.6461| dt: 1213.65ms| tok/sec: 431991| TFLOPS: 369.20| mem: 12.9GB
+step   18| loss: 7.856005| lr: 1.1157e-04| norm: 0.6707| dt: 1218.45ms| tok/sec: 430291| TFLOPS: 367.75| mem: 12.9GB
+validation loss: 7.6382
+step   19| loss: 7.933283| lr: 7.3215e-05| norm: 0.7095| dt: 1202.50ms| tok/sec: 435997| TFLOPS: 372.63| mem: 12.9GB
+================================================================================
+perf summary (tf32=True bf16=True compile=True flash=True vocab=50304 B=16 T=1024 total=524288 gpus=1 device=cuda)
+steps 3..19 (n=17): dt 1207.4 ms | 434255 tok/s | 371.14 TFLOPS | peak mem 12.9 GB
+================================================================================
+root@3e15ef46d637:/workspace/gpt2# sed -i -E 's/^(B = )[^ #]+/\164/' train_gpt2.py && grep -E "^B =" train_gpt2.py && CUDA_VISIBLE_DEVICES=0 python train_gpt2.py
+&& cp log/perf.csv perf_results/r7_b64.csv
+B = 64  # micro batch size; 64 on an 80 GB GPU, <= 32 on MPS
+^[[A^[[A^[[Ausing device: cuda
+total desired batch size: 524288
+=> calculated gradient accumulation steps: 8
+found 99 shards for split train
+found 1 shards for split val
+^[[Anum decayed parameter tensors: 50, with 124354560 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+using fused AdamW: True
+run config: tf32=True bf16=True compile=True flash=True vocab=50304 B=64 T=1024 total=524288 gpus=1 device=cuda
+training FLOPs per token: 854,654,976
+step    0| loss: 10.955006| lr: 6.0000e-05| norm: 15.3420| dt: 13353.38ms| tok/sec: 39263| TFLOPS: 33.56| mem: 43.3GB
+step    1| loss: 10.165102| lr: 1.2000e-04| norm: 6.6638| dt: 1124.09ms| tok/sec: 466411| TFLOPS: 398.62| mem: 44.3GB
+step    2| loss: 9.774548| lr: 1.8000e-04| norm: 2.7961| dt: 1116.53ms| tok/sec: 469570| TFLOPS: 401.32| mem: 44.3GB
+step    3| loss: 9.557748| lr: 2.4000e-04| norm: 2.2804| dt: 1126.01ms| tok/sec: 465617| TFLOPS: 397.94| mem: 44.3GB
+step    4| loss: 9.390188| lr: 3.0000e-04| norm: 2.0684| dt: 1126.45ms| tok/sec: 465436| TFLOPS: 397.79| mem: 44.3GB
+step    5| loss: 9.184052| lr: 3.6000e-04| norm: 2.0417| dt: 1121.94ms| tok/sec: 467306| TFLOPS: 399.39| mem: 44.3GB
+step    6| loss: 8.947049| lr: 4.2000e-04| norm: 1.8891| dt: 1120.27ms| tok/sec: 468002| TFLOPS: 399.98| mem: 44.3GB
+step    7| loss: 8.690611| lr: 4.8000e-04| norm: 1.6474| dt: 1121.21ms| tok/sec: 467610| TFLOPS: 399.65| mem: 44.3GB
+step    8| loss: 8.398387| lr: 5.4000e-04| norm: 1.4129| dt: 1118.92ms| tok/sec: 468567| TFLOPS: 400.46| mem: 44.3GB
+step    9| loss: 8.153588| lr: 6.0000e-04| norm: 1.2816| dt: 1125.10ms| tok/sec: 465991| TFLOPS: 398.26| mem: 44.3GB
+step   10| loss: 8.032501| lr: 6.0000e-04| norm: 2.0579| dt: 1122.86ms| tok/sec: 466921| TFLOPS: 399.06| mem: 44.3GB
+step   11| loss: 7.877944| lr: 5.8679e-04| norm: 1.3042| dt: 1122.83ms| tok/sec: 466933| TFLOPS: 399.07| mem: 44.3GB
+step   12| loss: 7.828219| lr: 5.4843e-04| norm: 0.9620| dt: 1119.26ms| tok/sec: 468425| TFLOPS: 400.34| mem: 44.3GB
+step   13| loss: 7.769108| lr: 4.8870e-04| norm: 0.7203| dt: 1115.86ms| tok/sec: 469851| TFLOPS: 401.56| mem: 44.3GB
+step   14| loss: 7.631910| lr: 4.1343e-04| norm: 1.1914| dt: 1122.68ms| tok/sec: 466995| TFLOPS: 399.12| mem: 44.3GB
+step   15| loss: 7.639258| lr: 3.3000e-04| norm: 0.8472| dt: 1125.13ms| tok/sec: 465980| TFLOPS: 398.25| mem: 44.3GB
+step   16| loss: 7.696015| lr: 2.4657e-04| norm: 0.5398| dt: 1126.66ms| tok/sec: 465346| TFLOPS: 397.71| mem: 44.3GB
+step   17| loss: 7.635147| lr: 1.7130e-04| norm: 0.6459| dt: 1125.63ms| tok/sec: 465774| TFLOPS: 398.08| mem: 44.3GB
+step   18| loss: 7.855955| lr: 1.1157e-04| norm: 0.6705| dt: 1129.19ms| tok/sec: 464303| TFLOPS: 396.82| mem: 44.3GB
+validation loss: 7.6338
+step   19| loss: 7.933275| lr: 7.3215e-05| norm: 0.7100| dt: 1133.45ms| tok/sec: 462558| TFLOPS: 395.33| mem: 44.3GB
+================================================================================
+perf summary (tf32=True bf16=True compile=True flash=True vocab=50304 B=64 T=1024 total=524288 gpus=1 device=cuda)
+steps 3..19 (n=17): dt 1123.7 ms | 466566 tok/s | 398.75 TFLOPS | peak mem 44.3 GB
+================================================================================
+root@3e15ef46d637:/workspace/gpt2# sed -i -E 's/^(use_compile = )[^ #]+/\1True/' train_gpt2.py && grep -E "^(use_|vocab_size)" train_gpt2.py && CUDA_VISIBLE_DEVIC
+ES=0 python train_gpt2.py && cp log/perf.csv perf_results/r4_compile.csv^C
+root@3e15ef46d637:/workspace/gpt2# torchrun --standalone --nproc_per_node=2 train_gpt2.py && cp log/perf.csv perf_results/r8_ddp2.csv
+W1025 22:39:24.043000 23411 torch/distributed/run.py:774]
+W1025 22:39:24.043000 23411 torch/distributed/run.py:774] *****************************************
+W1025 22:39:24.043000 23411 torch/distributed/run.py:774] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system b
+eing overloaded, please further tune the variable for optimal performance in your application as needed.
+W1025 22:39:24.043000 23411 torch/distributed/run.py:774] *****************************************
+total desired batch size: 524288
+=> calculated gradient accumulation steps: 4
+found 99 shards for split train
+found 1 shards for split val
+num decayed parameter tensors: 50, with 124354560 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+num decayed parameter tensors: 50, with 124354560 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+using fused AdamW: True
+using fused AdamW: True
+run config: tf32=True bf16=True compile=True flash=True vocab=50304 B=64 T=1024 total=524288 gpus=2 device=cuda
+training FLOPs per token: 854,654,976
+training FLOPs per token: 854,654,976
+step    0| loss: 10.955008| lr: 6.0000e-05| norm: 15.4895| dt: 13126.69ms| tok/sec: 39941| TFLOPS: 34.14| mem: 44.3GB
+step    1| loss: 10.165005| lr: 1.2000e-04| norm: 6.7461| dt: 567.73ms| tok/sec: 923478| TFLOPS: 789.26| mem: 44.8GB
+step    2| loss: 9.776862| lr: 1.8000e-04| norm: 2.8138| dt: 579.44ms| tok/sec: 904823| TFLOPS: 773.31| mem: 44.8GB
+step    3| loss: 9.560195| lr: 2.4000e-04| norm: 2.3022| dt: 570.94ms| tok/sec: 918284| TFLOPS: 784.82| mem: 44.8GB
+step    4| loss: 9.396219| lr: 3.0000e-04| norm: 2.0720| dt: 573.24ms| tok/sec: 914603| TFLOPS: 781.67| mem: 44.8GB
+step    5| loss: 9.191122| lr: 3.6000e-04| norm: 2.0317| dt: 575.40ms| tok/sec: 911166| TFLOPS: 778.73| mem: 44.8GB
+step    6| loss: 8.955832| lr: 4.2000e-04| norm: 1.8637| dt: 573.13ms| tok/sec: 914781| TFLOPS: 781.82| mem: 44.8GB
+step    7| loss: 8.701876| lr: 4.8000e-04| norm: 1.6640| dt: 575.96ms| tok/sec: 910289| TFLOPS: 777.98| mem: 44.8GB
+step    8| loss: 8.409761| lr: 5.4000e-04| norm: 1.4065| dt: 569.91ms| tok/sec: 919949| TFLOPS: 786.24| mem: 44.8GB
+step    9| loss: 8.160995| lr: 6.0000e-04| norm: 1.3031| dt: 578.83ms| tok/sec: 905774| TFLOPS: 774.12| mem: 44.8GB
+step   10| loss: 8.042092| lr: 6.0000e-04| norm: 1.4911| dt: 571.94ms| tok/sec: 916685| TFLOPS: 783.45| mem: 44.8GB
+step   11| loss: 7.882499| lr: 5.8679e-04| norm: 1.0501| dt: 577.59ms| tok/sec: 907714| TFLOPS: 775.78| mem: 44.8GB
+step   12| loss: 7.841428| lr: 5.4843e-04| norm: 0.8822| dt: 573.66ms| tok/sec: 913939| TFLOPS: 781.10| mem: 44.8GB
+step   13| loss: 7.783453| lr: 4.8870e-04| norm: 0.6437| dt: 579.73ms| tok/sec: 904363| TFLOPS: 772.92| mem: 44.8GB
+step   14| loss: 7.640072| lr: 4.1343e-04| norm: 1.1356| dt: 572.77ms| tok/sec: 915361| TFLOPS: 782.32| mem: 44.8GB
+step   15| loss: 7.654760| lr: 3.3000e-04| norm: 0.7806| dt: 575.82ms| tok/sec: 910507| TFLOPS: 778.17| mem: 44.8GB
+step   16| loss: 7.709685| lr: 2.4657e-04| norm: 0.5641| dt: 573.95ms| tok/sec: 913466| TFLOPS: 780.70| mem: 44.8GB
+step   17| loss: 7.650037| lr: 1.7130e-04| norm: 0.7105| dt: 569.60ms| tok/sec: 920442| TFLOPS: 786.66| mem: 44.8GB
+step   18| loss: 7.872585| lr: 1.1157e-04| norm: 0.6958| dt: 573.85ms| tok/sec: 913633| TFLOPS: 780.84| mem: 44.8GB
+validation loss: 7.6516
+step   19| loss: 7.954847| lr: 7.3215e-05| norm: 0.6165| dt: 576.30ms| tok/sec: 909744| TFLOPS: 777.52| mem: 44.8GB
+================================================================================
+perf summary (tf32=True bf16=True compile=True flash=True vocab=50304 B=64 T=1024 total=524288 gpus=2 device=cuda)
+steps 3..19 (n=17): dt 574.3 ms | 912982 tok/s | 780.28 TFLOPS | peak mem 44.8 GB
+================================================================================
+root@3e15ef46d637:/workspace/gpt2# ls -l perf_results
+total 8
+-rw-rw-rw- 1 root root 758 Oct 25 22:28 r1_fp32.csv
+-rw-rw-rw- 1 root root 737 Oct 25 22:31 r2_tf32.csv
+-rw-rw-rw- 1 root root 755 Oct 25 22:33 r3_bf16.csv
+-rw-rw-rw- 1 root root 774 Oct 25 22:35 r4_compile.csv
+-rw-rw-rw- 1 root root 773 Oct 25 22:36 r5_flash.csv
+-rw-rw-rw- 1 root root 773 Oct 25 22:38 r6_vocab.csv
+-rw-rw-rw- 1 root root 773 Oct 25 22:39 r7_b64.csv
+-rw-rw-rw- 1 root root 754 Oct 25 22:40 r8_ddp2.csv
+root@3e15ef46d637:/workspace/gpt2# tmux capture-pane -pS - > perf_results/console.log && wc -l perf_results/console.log
+431 perf_results/console.log
+root@3e15ef46d637:/workspace/gpt2# sed -i -E 's/^(use_compile = )[^ #]+/\1False/; s/^(max_steps = )[^ #]+/\110/; s/^(run_evals = )[^ #]+/\1True/; s/^(save_checkpo
+ints = )[^ #]+/\1True/' train_gpt2.py && torchrun --standalone --nproc_per_node=2 train_gpt2.py 2>&1 | tee perf_results/eval_ddp_test.log; ls -lh log/
+W1025 22:41:53.232000 27190 torch/distributed/run.py:774]
+W1025 22:41:53.232000 27190 torch/distributed/run.py:774] *****************************************
+W1025 22:41:53.232000 27190 torch/distributed/run.py:774] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system b
+eing overloaded, please further tune the variable for optimal performance in your application as needed.
+W1025 22:41:53.232000 27190 torch/distributed/run.py:774] *****************************************
+total desired batch size: 524288
+=> calculated gradient accumulation steps: 4
+found 99 shards for split train
+found 1 shards for split val
+num decayed parameter tensors: 50, with 124354560 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+num decayed parameter tensors: 50, with 124354560 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+using fused AdamW: True
+using fused AdamW: True
+training FLOPs per token: 854,654,976
+run config: tf32=True bf16=True compile=False flash=True vocab=50304 B=64 T=1024 total=524288 gpus=2 device=cuda
+training FLOPs per token: 854,654,976
+validation loss: 10.9512
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Generating train split: 100%|██████████| 39905/39905 [00:00<00:00, 91425.32 examples/s]
+Generating test split: 100%|██████████| 10003/10003 [00:00<00:00, 53458.91 examples/s]
+Generating validation split: 100%|██████████| 10042/10042 [00:00<00:00, 70726.17 examples/s]
+HellaSwag accuracy: 2492/10042=0.2482
+step    0| loss: 10.955015| lr: 6.0000e-05| norm: 15.4894| dt: 796.91ms| tok/sec: 657899| TFLOPS: 562.28| mem: 64.0GB
+step    1| loss: 10.164174| lr: 1.2000e-04| norm: 6.7451| dt: 730.94ms| tok/sec: 717275| TFLOPS: 613.02| mem: 64.5GB
+step    2| loss: 9.777383| lr: 1.8000e-04| norm: 2.8149| dt: 732.00ms| tok/sec: 716241| TFLOPS: 612.14| mem: 64.5GB
+step    3| loss: 9.561811| lr: 2.4000e-04| norm: 2.3038| dt: 731.19ms| tok/sec: 717037| TFLOPS: 612.82| mem: 64.5GB
+step    4| loss: 9.394581| lr: 3.0000e-04| norm: 2.0674| dt: 731.88ms| tok/sec: 716357| TFLOPS: 612.24| mem: 64.5GB
+step    5| loss: 9.191355| lr: 3.6000e-04| norm: 2.0339| dt: 730.51ms| tok/sec: 717706| TFLOPS: 613.39| mem: 64.5GB
+step    6| loss: 8.953107| lr: 4.2000e-04| norm: 1.8586| dt: 730.34ms| tok/sec: 717865| TFLOPS: 613.53| mem: 64.5GB
+step    7| loss: 8.702153| lr: 4.8000e-04| norm: 1.6677| dt: 731.56ms| tok/sec: 716673| TFLOPS: 612.51| mem: 64.5GB
+step    8| loss: 8.409427| lr: 5.4000e-04| norm: 1.4067| dt: 728.89ms| tok/sec: 719299| TFLOPS: 614.75| mem: 64.5GB
+^[[A^[[A^[[B^[[Bvalidation loss: 8.1591
+HellaSwag accuracy: 2529/10042=0.2518
+rank 1 same 0: Hello, I'm language model,.
+.
+
+
+
+ mind,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rank 1 same 1: Hello, I'm language model, and, of.
+.
+- and,, part and.
+ to.
+, of,, and, of
+rank 1 same 2: Hello, I'm language model,.
+ of a.
+
+
+
+
+
+
+
+
+,
+
+
+
+
+
+
+
+
+
+
+rank 1 same 3: Hello, I'm language model, and the. in, being.
+es, the years theS is food, students him and the of the..
+rank 0 same 0: Hello, I'm language model,,,-,.
+ the is betweenas in, of's one
+
+ and.
+.
+
+,
+
+rank 0 same 1: Hello, I'm language model, the he, the.
+ the of the. much he.
+
+ and the
+ to,as of the and the
+rank 0 same 2: Hello, I'm language model,.
+The of your's.
+
+ The
+
+ in and
+
+
+
+
+
+
+
+
+ with
+
+rank 0 same 3: Hello, I'm language model, the and, and, of,., more, the and the of of known a to, and.
+ using,
+step    9| loss: 8.160770| lr: 6.0000e-04| norm: 1.3044| dt: 729.51ms| tok/sec: 718683| TFLOPS: 614.23| mem: 64.5GB
+================================================================================
+perf summary (tf32=True bf16=True compile=False flash=True vocab=50304 B=64 T=1024 total=524288 gpus=2 device=cuda)
+steps 3..9 (n=7): dt 730.6 ms | 717660 tok/s | 613.35 TFLOPS | peak mem 64.5 GB
+================================================================================
+total 523M
+-rw-rw-rw- 1 root root  229 Oct 25 22:42 log.txt
+-rw-rw-rw- 1 root root 523M Oct 25 22:42 model_00009.pt
+-rw-rw-rw- 1 root root  445 Oct 25 22:42 perf.csv
+root@3e15ef46d637:/workspace/gpt2# tmux capture-pane -pS - > perf_results/console.log && wc -l perf_results/console.log
+

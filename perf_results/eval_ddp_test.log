@@ -1,0 +1,121 @@
+W1025 22:41:53.232000 27190 torch/distributed/run.py:774] 
+W1025 22:41:53.232000 27190 torch/distributed/run.py:774] *****************************************
+W1025 22:41:53.232000 27190 torch/distributed/run.py:774] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W1025 22:41:53.232000 27190 torch/distributed/run.py:774] *****************************************
+total desired batch size: 524288
+=> calculated gradient accumulation steps: 4
+found 99 shards for split train
+found 1 shards for split val
+num decayed parameter tensors: 50, with 124354560 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+num decayed parameter tensors: 50, with 124354560 parameters
+num non-decayed parameter tensors: 98, with 121344 parameters
+using fused AdamW: True
+using fused AdamW: True
+training FLOPs per token: 854,654,976
+run config: tf32=True bf16=True compile=False flash=True vocab=50304 B=64 T=1024 total=524288 gpus=2 device=cuda
+training FLOPs per token: 854,654,976
+validation loss: 10.9512
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Generating train split:   0%|          | 0/39905 [00:00<?, ? examples/s]Generating train split:  20%|██        | 8000/39905 [00:00<00:00, 65912.94 examples/s]Generating train split:  50%|█████     | 20000/39905 [00:00<00:00, 89878.48 examples/s]Generating train split:  80%|████████  | 32000/39905 [00:00<00:00, 97150.58 examples/s]Generating train split: 100%|██████████| 39905/39905 [00:00<00:00, 91425.32 examples/s]
+Generating test split:   0%|          | 0/10003 [00:00<?, ? examples/s]Generating test split:  70%|██████▉   | 7000/10003 [00:00<00:00, 47078.12 examples/s]Generating test split: 100%|██████████| 10003/10003 [00:00<00:00, 53458.91 examples/s]
+Generating validation split:   0%|          | 0/10042 [00:00<?, ? examples/s]Generating validation split: 100%|█████████▉| 10000/10042 [00:00<00:00, 82396.19 examples/s]Generating validation split: 100%|██████████| 10042/10042 [00:00<00:00, 70726.17 examples/s]
+HellaSwag accuracy: 2492/10042=0.2482
+step    0| loss: 10.955015| lr: 6.0000e-05| norm: 15.4894| dt: 796.91ms| tok/sec: 657899| TFLOPS: 562.28| mem: 64.0GB
+step    1| loss: 10.164174| lr: 1.2000e-04| norm: 6.7451| dt: 730.94ms| tok/sec: 717275| TFLOPS: 613.02| mem: 64.5GB
+step    2| loss: 9.777383| lr: 1.8000e-04| norm: 2.8149| dt: 732.00ms| tok/sec: 716241| TFLOPS: 612.14| mem: 64.5GB
+step    3| loss: 9.561811| lr: 2.4000e-04| norm: 2.3038| dt: 731.19ms| tok/sec: 717037| TFLOPS: 612.82| mem: 64.5GB
+step    4| loss: 9.394581| lr: 3.0000e-04| norm: 2.0674| dt: 731.88ms| tok/sec: 716357| TFLOPS: 612.24| mem: 64.5GB
+step    5| loss: 9.191355| lr: 3.6000e-04| norm: 2.0339| dt: 730.51ms| tok/sec: 717706| TFLOPS: 613.39| mem: 64.5GB
+step    6| loss: 8.953107| lr: 4.2000e-04| norm: 1.8586| dt: 730.34ms| tok/sec: 717865| TFLOPS: 613.53| mem: 64.5GB
+step    7| loss: 8.702153| lr: 4.8000e-04| norm: 1.6677| dt: 731.56ms| tok/sec: 716673| TFLOPS: 612.51| mem: 64.5GB
+step    8| loss: 8.409427| lr: 5.4000e-04| norm: 1.4067| dt: 728.89ms| tok/sec: 719299| TFLOPS: 614.75| mem: 64.5GB
+validation loss: 8.1591
+HellaSwag accuracy: 2529/10042=0.2518
+rank 1 same 0: Hello, I'm language model,.
+.
+
+
+
+ mind,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rank 1 same 1: Hello, I'm language model, and, of.
+.
+- and,, part and.
+ to.
+, of,, and, of
+rank 1 same 2: Hello, I'm language model,.
+ of a.
+
+
+
+
+
+
+
+
+,
+
+
+
+
+
+
+
+
+
+
+rank 1 same 3: Hello, I'm language model, and the. in, being.
+es, the years theS is food, students him and the of the..
+rank 0 same 0: Hello, I'm language model,,,-,.
+ the is betweenas in, of's one
+
+ and.
+.
+
+,
+
+rank 0 same 1: Hello, I'm language model, the he, the.
+ the of the. much he.
+
+ and the
+ to,as of the and the
+rank 0 same 2: Hello, I'm language model,.
+The of your's.
+
+ The
+
+ in and
+
+
+
+
+
+
+
+
+ with
+
+rank 0 same 3: Hello, I'm language model, the and, and, of,., more, the and the of of known a to, and.
+ using,
+step    9| loss: 8.160770| lr: 6.0000e-04| norm: 1.3044| dt: 729.51ms| tok/sec: 718683| TFLOPS: 614.23| mem: 64.5GB
+================================================================================
+perf summary (tf32=True bf16=True compile=False flash=True vocab=50304 B=64 T=1024 total=524288 gpus=2 device=cuda)
+steps 3..9 (n=7): dt 730.6 ms | 717660 tok/s | 613.35 TFLOPS | peak mem 64.5 GB
+================================================================================
