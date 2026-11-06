@@ -365,7 +365,7 @@ device_type = "cuda" if device.startswith("cuda") else device
 # perf switches -- flip one at a time to fill perf.md
 use_tf32 = True  # TF32 matmuls on Ampere+ GPUs (no effect on MPS)
 use_bf16 = True  # bf16 autocast on CUDA (ignored on MPS / CPU)
-use_compile = False  # torch.compile; HellaSwag + sampling are skipped when True
+use_compile = False  # torch.compile for training; evals run on the uncompiled raw_model
 use_flash = True  # fused attention (SDPA) vs manual attention
 vocab_size = 50304  # 50257 = original GPT-2 vocab, 50304 = "nice number" padding
 
@@ -516,7 +516,7 @@ for step in range(max_steps):
                 torch.save(checkpoint, checkpoint_path)
 
     # once in a while evaluate hellaswag
-    if run_evals and (step % eval_interval == 0 or last_step) and (not use_compile):
+    if run_evals and (step % eval_interval == 0 or last_step):
         num_correct_norm = 0
         num_total = 0
         for i, example in enumerate(iterate_examples('val')):
@@ -531,9 +531,9 @@ for step in range(max_steps):
             with torch.no_grad():
                 if device_type == "cuda" and use_bf16:
                     with torch.autocast(device_type=device_type, dtype=torch.bfloat16):
-                        logits, loss = model(tokens)
+                        logits, loss = raw_model(tokens)
                 else:
-                    logits, loss = model(tokens)
+                    logits, loss = raw_model(tokens)
                 pred_norm = get_most_likely_row(tokens, mask, logits)
             num_total += 1
             num_correct_norm += int(pred_norm == label)
@@ -554,7 +554,7 @@ for step in range(max_steps):
 
 
     # once in a while generate from the model
-    if run_evals and ((step > 0 and step % eval_interval == 0) or last_step) and (not use_compile):
+    if run_evals and ((step > 0 and step % eval_interval == 0) or last_step):
         model.eval()
         num_return_sequences = 4
         max_length = 32
@@ -566,7 +566,7 @@ for step in range(max_steps):
         sample_rng.manual_seed(42 + ddp_rank)
         while xgen.size(1) < max_length:
             with torch.no_grad():
-                logits, _ = model(xgen)
+                logits, _ = raw_model(xgen)
                 logits = logits[:, -1, :]  # B, vocab_size
                 probs = F.softmax(logits, dim=-1)
                 # do top-k sampling of 50
