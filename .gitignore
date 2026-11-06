@@ -7,3 +7,4 @@ log/
 *.pt
 *.bin
 *.npy
+log_full_run/*.pt
